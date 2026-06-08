@@ -5,69 +5,157 @@ type GitGraphProps = {
   merged?: boolean;
 };
 
-const commits = [
-  { x: 120, y: 210, c: "#58a6ff" },
-  { x: 280, y: 210, c: "#58a6ff" },
-  { x: 440, y: 210, c: "#58a6ff" },
-  { x: 600, y: 210, c: "#58a6ff" },
+const MAIN_Y = 120;
+const FEAT_Y = 250;
+const COLOR_MAIN = "#fc8c4b";
+const COLOR_FEAT = "#d6409f";
+const COLOR_MERGE = "#2ea043";
+
+const mainCommits = [
+  { x: 150, label: "C1" },
+  { x: 300, label: "C2" },
+  { x: 620, label: "C3" },
+  { x: 770, label: "M1", c: COLOR_MERGE },
 ];
 
-const feature = [
-  { x: 280, y: 210, c: "#fc6d26" },
-  { x: 410, y: 105, c: "#fc6d26" },
-  { x: 560, y: 105, c: "#fc6d26" },
-  { x: 710, y: 210, c: "#2ea043" },
+const featCommits = [
+  { x: 410, label: "F1" },
+  { x: 540, label: "F2" },
 ];
 
 export function GitGraph({ showFeature = true, merged = true }: GitGraphProps) {
+  const feats = showFeature ? featCommits : [];
   return (
-    <svg viewBox="0 0 820 330" className="h-full w-full">
+    <svg viewBox="0 0 900 360" className="h-full w-full" role="img" aria-label="Git commit graph">
       <defs>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="4" result="blur" />
+        <filter id="gg-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3.5" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
       </defs>
+
+      {/* main line */}
       <motion.path
-        d="M120 210 H600"
-        stroke="#58a6ff"
-        strokeWidth="8"
+        d={`M150 ${MAIN_Y} H770`}
+        stroke={COLOR_MAIN}
+        strokeWidth="7"
         strokeLinecap="round"
+        fill="none"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: 1 }}
       />
+
+      {/* feature branch off C2, merge back into M1 */}
       {showFeature && (
         <motion.path
-          d="M280 210 C340 210 350 105 410 105 H560 C620 105 650 210 710 210"
-          stroke="#fc6d26"
-          strokeWidth="8"
+          d={`M300 ${MAIN_Y} C300 ${FEAT_Y} 360 ${FEAT_Y} 410 ${FEAT_Y} H540 C700 ${FEAT_Y} 770 ${FEAT_Y} 770 ${merged ? MAIN_Y : FEAT_Y}`}
+          stroke={COLOR_FEAT}
+          strokeWidth="7"
           strokeLinecap="round"
           fill="none"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ delay: 0.4, duration: 1.1 }}
+          transition={{ delay: 0.4, duration: 1.2 }}
         />
       )}
-      {[...commits, ...(showFeature ? feature.slice(1, merged ? 4 : 3) : [])].map((commit, index) => (
-        <motion.circle
-          key={`${commit.x}-${commit.y}-${index}`}
-          cx={commit.x}
-          cy={commit.y}
-          r="18"
-          fill={commit.c}
-          filter="url(#glow)"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: index * 0.13 + 0.2 }}
+
+      {/* branch pills */}
+      <BranchPill x={150} y={MAIN_Y} label="main" color={COLOR_MAIN} align="end" />
+      {showFeature && <BranchPill x={355} y={FEAT_Y} label="feature" color={COLOR_FEAT} align="end" />}
+
+      {/* main commits */}
+      {mainCommits.map((commit, index) => (
+        <CommitNode
+          key={commit.label}
+          x={commit.x}
+          y={MAIN_Y}
+          label={commit.label}
+          color={commit.c ?? COLOR_MAIN}
+          labelBelow
+          delay={index * 0.13 + 0.2}
         />
       ))}
-      <text x="625" y="218" fill="#f0f6fc" fontSize="28" fontFamily="Consolas">main</text>
-      {showFeature && <text x="395" y="75" fill="#fca326" fontSize="26" fontFamily="Consolas">feature/login</text>}
-      {merged && <text x="690" y="255" fill="#2ea043" fontSize="24" fontFamily="Consolas">merge</text>}
+
+      {/* feature commits */}
+      {feats.map((commit, index) => (
+        <CommitNode
+          key={commit.label}
+          x={commit.x}
+          y={FEAT_Y}
+          label={commit.label}
+          color={COLOR_FEAT}
+          labelBelow
+          delay={index * 0.13 + 0.7}
+        />
+      ))}
     </svg>
+  );
+}
+
+function CommitNode({
+  x,
+  y,
+  label,
+  color,
+  labelBelow,
+  delay,
+}: {
+  x: number;
+  y: number;
+  label: string;
+  color: string;
+  labelBelow?: boolean;
+  delay: number;
+}) {
+  return (
+    <motion.g
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ delay, type: "spring", stiffness: 260, damping: 18 }}
+      style={{ transformOrigin: `${x}px ${y}px` }}
+    >
+      <circle cx={x} cy={y} r="15" fill={color} filter="url(#gg-glow)" />
+      <circle cx={x} cy={y} r="6" fill="#0d1117" opacity="0.55" />
+      <text
+        x={x}
+        y={labelBelow ? y + 42 : y - 30}
+        fill="#f0f6fc"
+        fontSize="22"
+        fontFamily="Consolas, monospace"
+        fontWeight="700"
+        textAnchor="middle"
+      >
+        {label}
+      </text>
+    </motion.g>
+  );
+}
+
+function BranchPill({
+  x,
+  y,
+  label,
+  color,
+  align,
+}: {
+  x: number;
+  y: number;
+  label: string;
+  color: string;
+  align: "start" | "end";
+}) {
+  const width = label.length * 13 + 28;
+  const px = align === "end" ? x - width - 26 : x + 26;
+  return (
+    <motion.g initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+      <rect x={px} y={y - 21} width={width} height={42} rx={21} fill={color} opacity="0.16" stroke={color} strokeWidth="1.5" />
+      <text x={px + width / 2} y={y + 7} fill={color} fontSize="22" fontFamily="Consolas, monospace" fontWeight="700" textAnchor="middle">
+        {label}
+      </text>
+    </motion.g>
   );
 }

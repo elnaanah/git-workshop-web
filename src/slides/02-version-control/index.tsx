@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Cloud, Database, GitBranch, HardDrive, Network, Server } from "lucide-react";
-import { MermaidDiagram } from "../../components/MermaidDiagram";
+import { GitGraph } from "../../components/GitGraph";
 import { SlideShell } from "../../components/SlideShell";
 import { Timeline } from "../../components/Timeline";
 import { WorkflowDiagram } from "../../components/WorkflowDiagram";
@@ -64,7 +64,9 @@ function WhyGit() {
 function MentalModel() {
   return (
     <SlideShell eyebrow="Mental Model" title="Git يرى المشروع كسلسلة Snapshots" subtitle="Commit لقطة موثقة، Branch مؤشر يتحرك، و HEAD مكان وقوفك الحالي.">
-      <MermaidDiagram chart={`gitGraph\n  commit id: "C1"\n  commit id: "C2"\n  branch feature\n  checkout feature\n  commit id: "F1"\n  commit id: "F2"\n  checkout main\n  commit id: "C3"\n  merge feature id: "M1"`} />
+      <div className="glass flex h-full items-center justify-center rounded-3xl p-8">
+        <GitGraph />
+      </div>
     </SlideShell>
   );
 }
