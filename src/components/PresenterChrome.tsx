@@ -1,4 +1,4 @@
-import { Search, FileDown, Moon, Monitor, QrCode } from "lucide-react";
+import { Search, FileDown, Monitor, QrCode, Command, Timer, StickyNote, Crosshair, CircleOff } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import type { Slide } from "../types";
 
@@ -8,10 +8,14 @@ type PresenterChromeProps = {
   total: number;
   onSearch: () => void;
   onExport: () => void;
+  onCommand: () => void;
   notesOpen: boolean;
+  laserOn: boolean;
+  timerOn: boolean;
+  blackoutOn: boolean;
 };
 
-export function PresenterChrome({ slide, index, total, onSearch, onExport, notesOpen }: PresenterChromeProps) {
+export function PresenterChrome({ slide, index, total, onSearch, onExport, onCommand, notesOpen, laserOn, timerOn, blackoutOn }: PresenterChromeProps) {
   const progress = ((index + 1) / total) * 100;
 
   return (
@@ -24,6 +28,9 @@ export function PresenterChrome({ slide, index, total, onSearch, onExport, notes
         <span>{slide.section}</span>
       </div>
       <div className="no-print fixed bottom-5 right-5 z-40 flex items-center gap-2">
+        <button className="rounded-xl border border-gh-border bg-gh-card/85 p-3 text-gh-muted backdrop-blur hover:text-gh-text" onClick={onCommand} title="Command Center">
+          <Command size={18} />
+        </button>
         <button className="rounded-xl border border-gh-border bg-gh-card/85 p-3 text-gh-muted backdrop-blur hover:text-gh-text" onClick={onSearch} title="Search">
           <Search size={18} />
         </button>
@@ -38,9 +45,14 @@ export function PresenterChrome({ slide, index, total, onSearch, onExport, notes
         </div>
         <span className="kbd hidden md:inline-flex">F</span>
         <Monitor className="hidden text-gh-muted md:block" size={18} />
-        <span className="kbd hidden md:inline-flex">D</span>
-        <Moon className="hidden text-gh-muted md:block" size={18} />
-        <span className={`kbd hidden md:inline-flex ${notesOpen ? "border-gl-orange text-gl-orange" : ""}`}>S</span>
+        <span className={`kbd hidden md:inline-flex ${blackoutOn ? "border-gl-orange text-gl-orange" : ""}`}>B</span>
+        <CircleOff className="hidden text-gh-muted md:block" size={18} />
+        <span className={`kbd hidden md:inline-flex ${timerOn ? "border-gl-orange text-gl-orange" : ""}`}>T</span>
+        <Timer className="hidden text-gh-muted md:block" size={18} />
+        <span className={`kbd hidden md:inline-flex ${notesOpen ? "border-gl-orange text-gl-orange" : ""}`}>N</span>
+        <StickyNote className="hidden text-gh-muted md:block" size={18} />
+        <span className={`kbd hidden md:inline-flex ${laserOn ? "border-gl-orange text-gl-orange" : ""}`}>L</span>
+        <Crosshair className="hidden text-gh-muted md:block" size={18} />
       </div>
     </>
   );

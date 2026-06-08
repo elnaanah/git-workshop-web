@@ -1,9 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Check, Clock, Maximize, Presentation, RotateCcw } from "lucide-react";
+import { Check, Clock, Maximize, Presentation, RotateCcw, Timer } from "lucide-react";
+import { CommandCenter } from "./components/CommandCenter";
 import { PresenterChrome } from "./components/PresenterChrome";
 import { SearchOverlay } from "./components/SearchOverlay";
+import { LiveMode } from "./pages/LiveMode";
+import { StudentMode } from "./pages/StudentMode";
 import { slides } from "./slides";
 
 const storageKey = "git-workshop-slide-index";
@@ -11,6 +14,8 @@ const storageKey = "git-workshop-slide-index";
 export function App() {
   const path = window.location.pathname;
   if (path === "/lab") return <LabMode />;
+  if (path === "/live") return <LiveMode />;
+  if (path === "/student") return <StudentMode />;
   if (path === "/speaker") return <SpeakerMode />;
   return <DeckMode />;
 }
@@ -18,14 +23,25 @@ export function App() {
 function DeckMode() {
   const [index, setIndex] = useState(() => Number(localStorage.getItem(storageKey) ?? 0));
   const [dim, setDim] = useState(false);
+  const [blackout, setBlackout] = useState(false);
+  const [laser, setLaser] = useState(false);
+  const [laserPosition, setLaserPosition] = useState({ x: -100, y: -100 });
+  const [timerVisible, setTimerVisible] = useState(false);
+  const [timerStart, setTimerStart] = useState(Date.now());
+  const [now, setNow] = useState(Date.now());
   const [notesOpen, setNotesOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
 
   const safeIndex = Math.min(Math.max(index, 0), slides.length - 1);
   const slide = slides[safeIndex];
   const SlideComponent = slide.component;
 
   const go = (next: number) => setIndex(Math.min(Math.max(next, 0), slides.length - 1));
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else document.documentElement.requestFullscreen?.();
+  };
 
   useEffect(() => {
     localStorage.setItem(storageKey, String(safeIndex));
@@ -33,12 +49,34 @@ function DeckMode() {
   }, [safeIndex]);
 
   useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!laser) return;
+    const onPointerMove = (event: PointerEvent) => setLaserPosition({ x: event.clientX, y: event.clientY });
+    window.addEventListener("pointermove", onPointerMove);
+    return () => window.removeEventListener("pointermove", onPointerMove);
+  }, [laser]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const typing = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA" || target?.isContentEditable;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setCommandOpen((value) => !value);
+        return;
+      }
+      if (typing) return;
       if (event.key === "ArrowRight" || event.key === " ") go(safeIndex + 1);
       if (event.key === "ArrowLeft") go(safeIndex - 1);
-      if (event.key.toLowerCase() === "f") document.documentElement.requestFullscreen?.();
-      if (event.key.toLowerCase() === "d") setDim((value) => !value);
-      if (event.key.toLowerCase() === "s") setNotesOpen((value) => !value);
+      if (event.key.toLowerCase() === "f") toggleFullscreen();
+      if (event.key.toLowerCase() === "b") setBlackout((value) => !value);
+      if (event.key.toLowerCase() === "t") setTimerVisible((value) => !value);
+      if (event.key.toLowerCase() === "n") setNotesOpen((value) => !value);
+      if (event.key.toLowerCase() === "l") setLaser((value) => !value);
       if (event.key === "/") {
         event.preventDefault();
         setSearchOpen(true);
@@ -47,6 +85,8 @@ function DeckMode() {
       if (event.key === "Escape") {
         setSearchOpen(false);
         setNotesOpen(false);
+        setCommandOpen(false);
+        setBlackout(false);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -56,7 +96,13 @@ function DeckMode() {
   return (
     <div className={dim ? "brightness-50" : ""}>
       <AnimatePresence mode="wait">
-        <motion.div key={slide.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}>
+        <motion.div
+          key={slide.id}
+          initial={{ opacity: 0, y: 18, scale: 0.992 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10, scale: 0.995 }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+        >
           <SlideComponent />
         </motion.div>
       </AnimatePresence>
@@ -65,9 +111,27 @@ function DeckMode() {
         index={safeIndex}
         total={slides.length}
         notesOpen={notesOpen}
+        laserOn={laser}
+        timerOn={timerVisible}
+        blackoutOn={blackout}
         onSearch={() => setSearchOpen(true)}
         onExport={() => window.print()}
+        onCommand={() => setCommandOpen(true)}
       />
+      {timerVisible && (
+        <div className="no-print fixed right-5 top-5 z-50 rounded-xl border border-gh-border bg-gh-card/90 px-4 py-2 font-mono text-gh-muted backdrop-blur">
+          <Timer className="mr-2 inline h-4 w-4 text-gl-orange" />
+          {Math.floor((now - timerStart) / 60000)}:{String(Math.floor((now - timerStart) / 1000) % 60).padStart(2, "0")}
+          <button className="ml-3 text-xs text-gh-blue" onClick={() => setTimerStart(Date.now())}>reset</button>
+        </div>
+      )}
+      {laser && (
+        <div
+          className="no-print pointer-events-none fixed z-[65] h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gl-orange bg-gl-orange/25 shadow-glow"
+          style={{ left: laserPosition.x, top: laserPosition.y }}
+        />
+      )}
+      {blackout && <div className="no-print fixed inset-0 z-[60] bg-black" />}
       {notesOpen && (
         <div className="no-print fixed left-1/2 top-6 z-50 max-w-2xl -translate-x-1/2 rounded-3xl border border-gh-border bg-gh-card/95 p-5 text-right shadow-2xl backdrop-blur">
           <div className="font-mono text-sm text-gl-orange">Speaker Notes</div>
@@ -83,6 +147,18 @@ function DeckMode() {
             go(next);
             setSearchOpen(false);
           }}
+        />
+      )}
+      {commandOpen && (
+        <CommandCenter
+          slides={slides}
+          onClose={() => setCommandOpen(false)}
+          onGoToSlide={(next) => {
+            go(next);
+            setCommandOpen(false);
+          }}
+          onToggleFullscreen={toggleFullscreen}
+          onToggleTimer={() => setTimerVisible((value) => !value)}
         />
       )}
     </div>
