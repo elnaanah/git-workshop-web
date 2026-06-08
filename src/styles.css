@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  background: #0d1117;
+  color: #f0f6fc;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+@layer components {
+  .slide {
+    @apply relative h-screen w-screen overflow-hidden bg-gh-bg px-6 py-6 md:px-14 md:py-10;
+  }
+
+  .stage-bg {
+    background:
+      radial-gradient(circle at 18% 18%, rgba(252, 109, 38, 0.18), transparent 28rem),
+      radial-gradient(circle at 78% 70%, rgba(88, 166, 255, 0.16), transparent 32rem),
+      linear-gradient(145deg, #0d1117 0%, #0a0f16 45%, #111827 100%);
+  }
+
+  .glass {
+    @apply border border-gh-border/80 shadow-2xl backdrop-blur-xl;
+    background-color: rgb(22 27 34 / 0.72);
+  }
+
+  .eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.35em] text-gl-orange md:text-sm;
+  }
+
+  .headline {
+    @apply max-w-5xl text-4xl font-black leading-tight tracking-tight text-gh-text md:text-7xl;
+  }
+
+  .subhead {
+    @apply max-w-3xl text-lg leading-8 text-gh-muted md:text-2xl;
+  }
+
+  .kbd {
+    @apply rounded-lg border border-gh-border bg-black/40 px-2 py-1 font-mono text-xs text-gh-muted;
+  }
+
+  .code-window {
+    @apply rounded-3xl border border-gh-border bg-[#090c10] shadow-blueglow;
+  }
+}
+
+.print-mode * {
+  animation: none !important;
+}
+
+@media print {
+  body {
+    overflow: visible;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
