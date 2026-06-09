@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
-import { Bot, Bug, CheckCircle2, Code2, GitFork, GitPullRequest, MessageSquare, Rocket, Shield, Users, XCircle, Zap } from "lucide-react";
+import { Bot, Bug, CheckCircle2, Code2, ExternalLink, FileText, GitFork, GitPullRequest, MessageSquare, Rocket, Shield, Star, Users, XCircle, Zap } from "lucide-react";
 import { MermaidDiagram } from "../../components/MermaidDiagram";
 import { SlideShell } from "../../components/SlideShell";
 import type { Slide } from "../../types";
@@ -164,6 +164,100 @@ function TeamWebAppScenario() {
   );
 }
 
+function GitHubAsPortfolio() {
+  const cvItems = [
+    { label: "خبرة العمل", value: "0 سنوات" },
+    { label: "مهارات", value: "Python, React, SQL" },
+    { label: "مشاريع", value: "مشروع تخرج (PDF)" },
+    { label: "التحقق", value: "لا يمكن التحقق" },
+  ];
+
+  const ghItems = [
+    { icon: Star, color: "text-gl-amber", label: "12 Repository منشور", sub: "مشاريع حقيقية يمكن تجربتها" },
+    { icon: GitPullRequest, color: "text-gh-blue", label: "340 Commit موثق", sub: "يثبت الاتساق والجدية" },
+    { icon: ExternalLink, color: "text-gh-green", label: "مشروع live على الإنترنت", sub: "رابط واحد يغني عن ألف كلمة" },
+    { icon: Users, color: "text-gl-orange", label: "مساهمة في فريق", sub: "PR و Review يثبتان العمل الجماعي" },
+  ];
+
+  return (
+    <SlideShell
+      eyebrow="Your Identity"
+      title="ملفك على GitHub — سيرتك الذاتية التقنية"
+      subtitle="المجند لا يقرأ PDF فقط — يفتح رابط GitHub ويرى تاريخك الحقيقي."
+    >
+      <div className="grid gap-5 md:grid-cols-2 h-full items-start">
+        {/* CV التقليدي */}
+        <motion.div
+          className="glass rounded-3xl p-6 border border-red-400/20 flex flex-col gap-4"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <div className="flex items-center gap-3 mb-1">
+            <FileText className="h-7 w-7 text-gh-muted" />
+            <h3 className="text-2xl font-black text-gh-muted">CV التقليدي</h3>
+            <span className="mr-auto text-xs font-bold px-3 py-1 rounded-full bg-red-400/10 text-red-400">ثابت · لا يمكن التحقق</span>
+          </div>
+          <div className="space-y-3">
+            {cvItems.map(({ label, value }) => (
+              <div key={label} className="flex items-center justify-between rounded-2xl bg-gh-card/60 px-4 py-3 border border-gh-border/40">
+                <span className="text-lg text-gh-muted">{label}</span>
+                <span className="text-lg font-bold text-gh-text/60">{value}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-base text-gh-muted/70 text-center mt-1 italic">"أنا جيد في البرمجة" — بدون دليل</p>
+        </motion.div>
+
+        {/* GitHub Profile */}
+        <motion.div
+          className="glass rounded-3xl p-6 border border-gh-green/30 flex flex-col gap-4"
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.25 }}
+        >
+          <div className="flex items-center gap-3 mb-1">
+            <Code2 className="h-7 w-7 text-gh-blue" />
+            <h3 className="text-2xl font-black">GitHub Profile</h3>
+            <span className="mr-auto text-xs font-bold px-3 py-1 rounded-full bg-gh-green/15 text-gh-green">حي · قابل للتحقق</span>
+          </div>
+          <div className="space-y-3">
+            {ghItems.map(({ icon: Icon, color, label, sub }, i) => (
+              <motion.div
+                key={label}
+                className="flex items-center gap-3 rounded-2xl bg-gh-card/60 px-4 py-3 border border-gh-border/40"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 + i * 0.1 }}
+              >
+                <Icon className={`h-6 w-6 shrink-0 ${color}`} />
+                <div>
+                  <p className="text-lg font-bold">{label}</p>
+                  <p className="text-sm text-gh-muted">{sub}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Takeaway */}
+      <motion.div
+        className="glass rounded-2xl py-4 px-8 text-center mt-4 border border-gh-border/40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.9 }}
+      >
+        <p className="text-xl font-black">
+          <span className="text-gh-muted">لا تبني للدراسة فقط — </span>
+          <span className="text-gh-green">انشر.</span>
+          <span className="text-gh-muted"> كل مشروع على GitHub هو سطر حقيقي في سيرتك.</span>
+        </p>
+      </motion.div>
+    </SlideShell>
+  );
+}
+
 export const githubSlides: Slide[] = [
   { id: "github-intro", section: "GitHub", title: "ما هو GitHub؟", keywords: ["github", "repository"], notes: "فرق بوضوح بين Git و GitHub.", component: GitHubIntro },
   { id: "github-repo-fork", section: "GitHub", title: "Repository و Fork", keywords: ["repo", "fork"], notes: "استخدم مثال مشروع مفتوح المصدر.", component: RepoFork },
@@ -173,4 +267,5 @@ export const githubSlides: Slide[] = [
   { id: "github-actions", section: "GitHub", title: "GitHub Actions", keywords: ["actions", "ci"], notes: "لا تتعمق في YAML، ركز على الفكرة.", component: ActionsSlide },
   { id: "github-cicd", section: "GitHub", title: "CI/CD من الكود إلى الإنتاج", keywords: ["ci", "cd", "pipeline", "automation"], notes: "اشرح الفرق بين CI و CD بمثال: CI يكتشف المشكلة، CD ينشر الحل.", component: CiCdExplained },
   { id: "github-scenario", section: "GitHub", title: "سيناريو فريق تطبيق ويب", keywords: ["team", "web app"], notes: "هذه الشريحة جسر مباشر إلى lab.", component: TeamWebAppScenario },
+  { id: "github-portfolio", section: "GitHub", title: "ملفك على GitHub — سيرتك الذاتية التقنية", keywords: ["portfolio", "cv", "profile", "career"], notes: "ذكّر الطلاب: المجند يفتح GitHub قبل PDF. كل repo منشور هو دليل حقيقي على الكفاءة.", component: GitHubAsPortfolio },
 ];
