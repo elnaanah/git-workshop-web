@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
-import { Bot, Bug, Code2, GitFork, GitPullRequest, MessageSquare, Users } from "lucide-react";
+import { Bot, Bug, CheckCircle2, Code2, GitFork, GitPullRequest, MessageSquare, Rocket, Shield, Users, XCircle, Zap } from "lucide-react";
 import { MermaidDiagram } from "../../components/MermaidDiagram";
 import { SlideShell } from "../../components/SlideShell";
 import type { Slide } from "../../types";
@@ -89,6 +89,73 @@ function ActionsSlide() {
   );
 }
 
+function CiCdExplained() {
+  const steps = [
+    { icon: GitPullRequest, label: "Push / PR", color: "text-gh-blue", desc: "يرفع المطور الكود" },
+    { icon: Shield, label: "CI يعمل", color: "text-gh-green", desc: "اختبارات تلقائية فورية" },
+    { icon: CheckCircle2, label: "الكود سليم", color: "text-gh-green", desc: "جاهز للدمج" },
+    { icon: Rocket, label: "CD ينشر", color: "text-gl-orange", desc: "نشر تلقائي للخادم" },
+  ];
+
+  return (
+    <SlideShell
+      eyebrow="CI/CD"
+      title="CI/CD — من الكود إلى الإنتاج تلقائياً"
+      subtitle="التكامل المستمر + التسليم المستمر · اكتشف المشاكل مبكراً، وسلّم بثقة."
+    >
+      <div className="flex flex-col gap-8">
+        {/* Pipeline visual */}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          {steps.map(({ icon: Icon, label, color, desc }, i) => (
+            <motion.div key={label} className="flex items-center gap-2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.15 }}>
+              <div className="glass rounded-2xl px-6 py-5 text-center min-w-[130px]">
+                <Icon className={`mx-auto mb-2 h-10 w-10 ${color}`} />
+                <p className="text-lg font-black">{label}</p>
+                <p className="text-sm text-gh-muted mt-1">{desc}</p>
+              </div>
+              {i < steps.length - 1 && (
+                <Zap className="h-6 w-6 text-gh-muted shrink-0" />
+              )}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CI vs CD cards */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <motion.div className="glass rounded-3xl p-6 border-r-4 border-gh-green" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+            <div className="flex items-center gap-3 mb-3">
+              <Shield className="h-8 w-8 text-gh-green" />
+              <div>
+                <h3 className="text-2xl font-black">CI — Continuous Integration</h3>
+                <p className="text-lg text-gh-muted font-semibold">التكامل المستمر</p>
+              </div>
+            </div>
+            <ul className="space-y-2 text-xl text-gh-muted leading-8">
+              <li className="flex gap-2"><CheckCircle2 className="h-5 w-5 text-gh-green mt-1 shrink-0" />شغّل الاختبارات عند كل Push</li>
+              <li className="flex gap-2"><CheckCircle2 className="h-5 w-5 text-gh-green mt-1 shrink-0" />اكتشف التعارضات قبل الدمج</li>
+              <li className="flex gap-2"><XCircle className="h-5 w-5 text-red-400 mt-1 shrink-0" />امنع دمج الكود المكسور</li>
+            </ul>
+          </motion.div>
+          <motion.div className="glass rounded-3xl p-6 border-r-4 border-gl-orange" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}>
+            <div className="flex items-center gap-3 mb-3">
+              <Rocket className="h-8 w-8 text-gl-orange" />
+              <div>
+                <h3 className="text-2xl font-black">CD — Continuous Delivery</h3>
+                <p className="text-lg text-gh-muted font-semibold">التسليم / النشر المستمر</p>
+              </div>
+            </div>
+            <ul className="space-y-2 text-xl text-gh-muted leading-8">
+              <li className="flex gap-2"><CheckCircle2 className="h-5 w-5 text-gh-green mt-1 shrink-0" />حزّم التطبيق بعد نجاح CI</li>
+              <li className="flex gap-2"><CheckCircle2 className="h-5 w-5 text-gh-green mt-1 shrink-0" />انشر تلقائياً على بيئة Staging</li>
+              <li className="flex gap-2"><Rocket className="h-5 w-5 text-gl-orange mt-1 shrink-0" />أو انشر مباشرةً على Production</li>
+            </ul>
+          </motion.div>
+        </div>
+      </div>
+    </SlideShell>
+  );
+}
+
 function TeamWebAppScenario() {
   return (
     <SlideShell eyebrow="Scenario" title="فريق طلاب يبني تطبيق ويب" subtitle="GitHub يصبح مركز العمل: issues للمهام، branches للتنفيذ، PR للمراجعة، و main للنسخة المستقرة.">
@@ -104,5 +171,6 @@ export const githubSlides: Slide[] = [
   { id: "github-issues", section: "GitHub", title: "Issues", keywords: ["issues", "tasks"], notes: "اربط Issue بفرع و PR لإغلاق المهمة.", component: IssuesSlide },
   { id: "github-review", section: "GitHub", title: "Code Review", keywords: ["review", "quality"], notes: "اعط قواعد مراجعة محترمة وواضحة.", component: CodeReviewSlide },
   { id: "github-actions", section: "GitHub", title: "GitHub Actions", keywords: ["actions", "ci"], notes: "لا تتعمق في YAML، ركز على الفكرة.", component: ActionsSlide },
+  { id: "github-cicd", section: "GitHub", title: "CI/CD من الكود إلى الإنتاج", keywords: ["ci", "cd", "pipeline", "automation"], notes: "اشرح الفرق بين CI و CD بمثال: CI يكتشف المشكلة، CD ينشر الحل.", component: CiCdExplained },
   { id: "github-scenario", section: "GitHub", title: "سيناريو فريق تطبيق ويب", keywords: ["team", "web app"], notes: "هذه الشريحة جسر مباشر إلى lab.", component: TeamWebAppScenario },
 ];

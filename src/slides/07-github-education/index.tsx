@@ -38,14 +38,6 @@ function PackCards() {
   );
 }
 
-function RegistrationSteps() {
-  return (
-    <SlideShell eyebrow="How to Apply" title="خطوات التسجيل العامة" subtitle="قد تتغير التفاصيل الرسمية، لكن المنطق ثابت: إثبات أنك طالب ثم انتظار التحقق.">
-      <Timeline items={["أنشئ حساب GitHub باسم مهني", "جهز بريد جامعي أو إثبات دراسة", "قدّم طلب GitHub Education", "انتظر التحقق", "ابدأ مشروعاً موثقاً يستفيد من الأدوات"]} />
-    </SlideShell>
-  );
-}
-
 function StudyBenefit() {
   return (
     <SlideShell eyebrow="Use It Well" title="كيف تستفيد منها خلال دراستك؟" subtitle="حوّل الأدوات إلى نتيجة قابلة للعرض: مشروع منشور، README واضح، Issues، Pull Requests، وتوثيق.">
@@ -64,5 +56,4 @@ function StudyBenefit() {
 export const educationSlides: Slide[] = [
   { id: "edu-intro", section: "GitHub Education", title: "ما هو GitHub Education؟", keywords: ["education", "student"], notes: "اذكر أن التفاصيل الرسمية قد تتغير، لذلك نركز على الفكرة والخطوات العامة.", component: EducationIntro },
   { id: "edu-pack", section: "GitHub Education", title: "Student Developer Pack", keywords: ["pack", "tools"], notes: "اعرض الفئات لا قائمة خدمات قد تتغير.", component: PackCards },
-  { id: "edu-register", section: "GitHub Education", title: "طريقة التسجيل", keywords: ["register", "apply"], notes: "شجع على حساب GitHub باسم مهني وREADME جيد.", component: RegistrationSteps },
 ];
